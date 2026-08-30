@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Canon EOS 80D | Controller</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>Canon Remote</h1>
+      </div>
+      <div class="camera-badge">CANON 80D v.1.7</div>
+    </header>
+
+    <!-- Monitor / Live View -->
+    <div class="monitor-card">
+      <img id="stream" style="display: none;" />
+      
+      <div id="placeholder" class="placeholder-view">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>LIVE VIEW STANDBY</span>
+      </div>
+
+      <div class="hud-overlay" id="hud" style="display: none;">
+        <div class="hud-top">
+          <div class="rec-indicator">
+            <span class="rec-dot"></span> LIVE
+          </div>
+          <div class="rec-indicator" style="font-size:0.6rem;">FHD 25P</div>
+        </div>
+        <div class="crosshair"></div>
+      </div>
+    </div>
+
+    <!-- Toggle Live View -->
+    <button id="toggle-stream-btn" class="btn-toggle-stream" onclick="toggleLiveView()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <span>Starta Live View</span>
+    </button>
+
+    <!-- Parameter Deck -->
+    <div class="control-deck main-deck">
+      <div class="deck-item">
+        <span class="deck-label">ISO</span>
+        <select id="iso" class="deck-select" onchange="updateSetting('iso', this.value)"></select>
+      </div>
+
+      <div class="deck-item">
+        <span class="deck-label">Shutter</span>
+        <select id="shutterspeed" class="deck-select" onchange="updateSetting('shutterspeed', this.value)"></select>
+      </div>
+
+      <div class="deck-item">
+        <span class="deck-label">Aperture</span>
+        <select id="aperture" class="deck-select" onchange="updateSetting('aperture', this.value)"></select>
+      </div>
+    </div>
+
+    <!-- Avancerade Inställningar Toggle -->
+    <button class="btn-advanced-toggle" onclick="toggleAdvancedPanel()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      <span>Avancerade inställningar</span>
+    </button>
+
+    <!-- Avancerade Inställningar Panel -->
+    <div id="advanced-panel" class="advanced-panel" style="display: none;">
+      <div class="control-deck advanced-deck">
+        <div class="deck-item">
+          <span class="deck-label">White Balance</span>
+          <select id="whitebalance" class="deck-select" onchange="updateSetting('whitebalance', this.value)"></select>
+        </div>
+        <div class="deck-item">
+          <span class="deck-label">Format</span>
+          <select id="imageformat" class="deck-select" onchange="updateSetting('imageformat', this.value)"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Taktil Avtryckare -->
+    <div class="shutter-deck">
+      <button id="capture-btn" class="shutter-outer" onclick="takeStandardPicture()" title="Exponera bild">
+        <div class="shutter-inner"></div>
+      </button>
+    </div>
+
+    <!-- Bulb / Nattläge -->
+    <div class="bulb-panel">
+      <div class="bulb-header">
+        <span class="bulb-title">Bulb Exposure</span>
+        <div class="bulb-control-row">
+          <button class="bulb-adjust-btn" onclick="adjustBulbTime(-10)" title="Minska med 10s">-10s</button>
+          <div class="bulb-input-wrap">
+            <input type="number" id="bulb-seconds" value="60" min="1" max="3600" />
+            <span>SEC</span>
+          </div>
+          <button class="bulb-adjust-btn" onclick="adjustBulbTime(10)" title="Öka med 10s">+10s</button>
+        </div>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="bulb-presets">
+        <button class="preset-btn" onclick="setBulbPreset(10)">10s</button>
+        <button class="preset-btn" onclick="setBulbPreset(30)">30s</button>
+        <button class="preset-btn" onclick="setBulbPreset(60)">1m</button>
+        <button class="preset-btn" onclick="setBulbPreset(120)">2m</button>
+        <button class="preset-btn" onclick="setBulbPreset(300)">5m</button>
+        <button class="preset-btn" onclick="setBulbPreset(600)">10m</button>
+      </div>
+
+      <button id="bulb-btn" class="btn-bulb" onclick="takeBulbPicture()">TRIGGA LÅNGTIDSEXPONERING</button>
+    </div>
+
+    <!-- Status Line -->
+    <div id="status-line">SYSTEM READY</div>
+
+    <!-- Senaste Bild -->
+    <div class="preview-card" id="preview-panel" style="display: none;">
+      <div class="preview-header">
+        <span>Senaste Exponering</span>
+        <span id="preview-filename"></span>
+      </div>
+      <img id="latest-image" />
+    </div>
+
+    <!-- Galleri -->
+    <div class="gallery-card">
+      <div class="gallery-header">
+        <span>Bildgalleri</span>
+        <button onclick="loadGallery()" class="btn-refresh-gallery">Uppdatera</button>
+      </div>
+      <div id="gallery-grid" class="gallery-grid">
+        <!-- Bilder läggs till här asynkront -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/static/js/app.js?v=2"></script>
+</body>
+</html>
